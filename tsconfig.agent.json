@@ -1,0 +1,29 @@
+{
+  "//": "TypeScript config for the injected Frida agent (src/agent/**). The agent runs inside the target Android process under Frida's GumJS runtime — NOT Node and NOT a browser. So we load only the frida-gum ambient globals (Java, Interceptor, Process, rpc, send, console, setTimeout…) and deliberately exclude DOM and @types/node. esbuild does the actual bundling; tsc here is typecheck-only (noEmit). This config is intentionally absent from tsconfig.node.json / tsconfig.web.json includes so the agent's Frida globals never leak into the app typecheck.",
+  "//include": "Only src/agent. The agent imports @shared/frida-intel (pulled in transitively + typechecked), but we must NOT compile all of src/shared here — shared/types.ts references NodeJS.* which isn't in the agent's lib/types set.",
+  "include": ["src/agent/**/*"],
+  "compilerOptions": {
+    "composite": false,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "types": ["frida-gum"],
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "paths": {
+      "@shared/*": ["src/shared/*"],
+      "@agent/*": ["src/agent/*"]
+    },
+    "baseUrl": "."
+  }
+}

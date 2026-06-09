@@ -1,0 +1,108 @@
+appId: studio.mobsec.app
+productName: MobSec Studio
+copyright: "Copyright © 2025–2026 MobSec Studio. All rights reserved."
+
+directories:
+  buildResources: build
+  output: release/${version}
+
+afterPack: scripts/after-pack.cjs
+
+# App icon — build/icon.png (512×512) is the source; electron-builder
+# auto-generates .ico (Windows) and .icns (macOS) from it.
+# Regenerate: node scripts/generate-icon.mjs
+icon: build/icon.png
+
+files:
+  - "!**/.vscode/*"
+  - "!src/*"
+  - "!scripts/*"
+  - "!release{,/**/*}"
+  - "!electron.vite.config.{js,ts,mjs,cjs}"
+  - "!{.eslintrc.cjs,.prettierrc.json,.prettierignore,tsconfig.json,tsconfig.node.json,tsconfig.web.json,tsconfig.agent.json}"
+  - "!{.env,.env.*,.npmrc,pnpm-lock.yaml}"
+  - "!{tailwind.config.js,postcss.config.js,components.json}"
+
+asar: true
+compression: normal
+asarUnpack:
+  - resources/**
+  - "**/node_modules/better-sqlite3/**"
+  - "**/node_modules/frida/**"
+
+extraResources:
+  - from: build
+    to: icons
+    filter:
+      - icon.png
+  - from: resources
+    to: tools-cache
+    filter: ["**/*"]
+
+# ─── Windows ──────────────────────────────────────────────────────────────────
+win:
+  icon: build/icon.png
+  target:
+    - target: nsis
+      arch: [x64]
+  artifactName: "${productName}-${version}-${arch}-setup.${ext}"
+  # The regular electron-builder resource editor pulls the winCodeSign archive,
+  # whose macOS symlinks fail to extract on non-admin Windows accounts.
+  # scripts/after-pack.cjs applies the executable icon directly with rcedit.
+  signAndEditExecutable: false
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: true
+  installerLanguages:
+    - en_US
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: MobSec Studio
+  displayLanguageSelector: false
+
+# ─── macOS ────────────────────────────────────────────────────────────────────
+mac:
+  icon: build/icon.png
+  category: public.app-category.developer-tools
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+  artifactName: "${productName}-${version}-${arch}.${ext}"
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  extendInfo:
+    NSMicrophoneUsageDescription: "Not used."
+    NSCameraUsageDescription: "Not used."
+
+dmg:
+  title: "${productName} ${version}"
+  contents:
+    - x: 130
+      y: 200
+      type: file
+    - x: 410
+      y: 200
+      type: link
+      path: /Applications
+
+# ─── Linux ────────────────────────────────────────────────────────────────────
+linux:
+  icon: build/icon.png
+  target:
+    # tar.gz works on all platforms without special privileges.
+    # For the self-contained AppImage run: scripts/build-linux-admin.ps1
+    # (requires Admin or Developer Mode for POSIX symlink creation).
+    - target: tar.gz
+      arch: [x64, arm64]
+  category: Development
+  artifactName: "${productName}-${version}-${arch}.${ext}"
+  description: "Android penetration testing platform"
+  desktop:
+    Name: MobSec Studio
+    Comment: Android penetration testing platform
+    Categories: Development;Security;
+
+publish: null

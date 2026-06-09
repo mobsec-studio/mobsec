@@ -1,0 +1,50 @@
+name: Bug report
+description: Report a reproducible problem in MobSec Studio.
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: List the exact steps needed to reproduce the issue.
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. See ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: MobSec Studio version
+      placeholder: 0.1.0-beta.2
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows
+        - Linux
+        - macOS
+    validations:
+      required: true
+  - type: textarea
+    id: device
+    attributes:
+      label: Android target
+      description: Device/emulator model, Android API level, root state, and ADB connection type.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Paste relevant logs, screenshots, or error messages.

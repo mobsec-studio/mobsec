@@ -1,0 +1,115 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+
+    <!-- ─── Background ────────────────────────────────────────────────────── -->
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#0b0e1f"/>
+      <stop offset="100%" stop-color="#060912"/>
+    </linearGradient>
+
+    <!-- ─── Shield body ───────────────────────────────────────────────────── -->
+    <!-- Deep navy at top → richer indigo-blue lower half -->
+    <linearGradient id="shield-body" x1="256" y1="42" x2="256" y2="472" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#1e3a6e"/>
+      <stop offset="48%"  stop-color="#122d5a"/>
+      <stop offset="100%" stop-color="#091e40"/>
+    </linearGradient>
+
+    <!-- ─── Outer border ──────────────────────────────────────────────────── -->
+    <!-- Bright sky-blue at top, slightly dimmer at base — gives the shield
+         a polished, lit-from-above appearance. -->
+    <linearGradient id="border" x1="256" y1="42" x2="256" y2="472" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#7dd3fc"/>
+      <stop offset="40%"  stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+
+    <!-- ─── Inner concentric border ───────────────────────────────────────── -->
+    <linearGradient id="inner-border" x1="256" y1="80" x2="256" y2="438" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#bae6fd" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0.18"/>
+    </linearGradient>
+
+    <!-- ─── Top metallic shine ────────────────────────────────────────────── -->
+    <linearGradient id="shine" x1="256" y1="42" x2="256" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="white" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- ─── Edge rim (inner edge highlight) ─────────────────────────────────
+         A second very-thin stroke just inside the outer border to create the
+         premium "beveled edge" effect seen on high-end security badges. -->
+    <linearGradient id="rim" x1="256" y1="42" x2="256" y2="472" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="white"   stop-opacity="0.18"/>
+      <stop offset="50%"  stop-color="#38bdf8"  stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="white"   stop-opacity="0.04"/>
+    </linearGradient>
+
+    <!-- ─── Glow (behind the shield) ─────────────────────────────────────── -->
+    <filter id="glow" x="-22%" y="-18%" width="144%" height="144%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="18" result="blur"/>
+      <feColorMatrix in="blur" type="matrix"
+        values="0 0 0 0 0.219  0 0 0 0 0.612  0 0 0 0 0.980  0 0 0 0.80 0"
+        result="colored"/>
+      <feMerge>
+        <feMergeNode in="colored"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- ─── Clip to shield shape so the shine rect stays inside ──────────── -->
+    <clipPath id="shield-clip">
+      <path d="M256,42 C338,42 456,98 456,136 L456,284 Q456,410 256,474 Q56,410 56,284 L56,136 C56,98 174,42 256,42 Z"/>
+    </clipPath>
+
+  </defs>
+
+  <!-- Background: dark rounded square -->
+  <rect width="512" height="512" rx="90" fill="url(#bg)"/>
+
+  <!-- ── Outer glow layer (blurred, renders beneath the shield) ─────────── -->
+  <path d="M256,42 C338,42 456,98 456,136 L456,284 Q456,410 256,474 Q56,410 56,284 L56,136 C56,98 174,42 256,42 Z"
+        fill="none"
+        stroke="#38bdf8"
+        stroke-width="4"
+        filter="url(#glow)"
+        opacity="0.75"/>
+
+  <!-- ── Shield body ────────────────────────────────────────────────────── -->
+  <path d="M256,42 C338,42 456,98 456,136 L456,284 Q456,410 256,474 Q56,410 56,284 L56,136 C56,98 174,42 256,42 Z"
+        fill="url(#shield-body)"/>
+
+  <!-- ── Outer border stroke — the primary bright "edge" of the shield ──── -->
+  <path d="M256,42 C338,42 456,98 456,136 L456,284 Q456,410 256,474 Q56,410 56,284 L56,136 C56,98 174,42 256,42 Z"
+        fill="none"
+        stroke="url(#border)"
+        stroke-width="3.5"/>
+
+  <!-- ── Inner rim (tight bevel inside the outer border) ───────────────── -->
+  <path d="M256,42 C338,42 456,98 456,136 L456,284 Q456,410 256,474 Q56,410 56,284 L56,136 C56,98 174,42 256,42 Z"
+        fill="none"
+        stroke="url(#rim)"
+        stroke-width="8"
+        stroke-opacity="1"/>
+
+  <!-- ── Inner concentric shield border — the "badge" layer ─────────────── -->
+  <!--   Inset ~38 px from the outer path on every edge.                    -->
+  <path d="M256,80 C328,80 418,126 418,158 L418,282 Q418,392 256,438 Q94,392 94,282 L94,158 C94,126 184,80 256,80 Z"
+        fill="none"
+        stroke="url(#inner-border)"
+        stroke-width="2"/>
+
+  <!-- ── Metallic top highlight (clipped to shield shape) ──────────────── -->
+  <rect x="56" y="42" width="400" height="155"
+        fill="url(#shine)"
+        clip-path="url(#shield-clip)"/>
+
+  <!-- ── Fine diagonal light streak across upper-right quadrant ────────── -->
+  <!--   Simulates a specular reflection on a curved metal surface.        -->
+  <path d="M320,55 Q400,100 440,160"
+        fill="none"
+        stroke="rgba(255,255,255,0.09)"
+        stroke-width="22"
+        stroke-linecap="round"/>
+
+</svg>

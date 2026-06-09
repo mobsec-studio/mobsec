@@ -1,0 +1,38 @@
+name: Feature request
+description: Suggest an improvement or new capability.
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What workflow is difficult or missing today?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: What would a strong implementation look like?
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Device management
+        - Emulator
+        - Proxy
+        - Repeater
+        - APK Analyzer
+        - JADX
+        - Frida
+        - Logcat
+        - Settings
+        - Packaging
+        - Documentation
+        - Other
+    validations:
+      required: true
