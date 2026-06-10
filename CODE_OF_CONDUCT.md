@@ -27,4 +27,4 @@ take other reasonable moderation actions to protect the project and community.
 
 For sensitive concerns, contact:
 
-- hello@mobsec.studio
+- support@mobsec.io
