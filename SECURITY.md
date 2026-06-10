@@ -18,7 +18,7 @@ Please do not open a public issue for vulnerabilities in MobSec Studio itself.
 
 Send a private report to:
 
-- hello@mobsec.studio
+- dev@mobsec.io
 
 Include:
 
