@@ -184,7 +184,9 @@ External tools are owned by main-process services:
 - apktool and JADX for static analysis.
 - Frida and frida-server for runtime instrumentation.
 
-See [docs/architecture.md](docs/architecture.md) for the full engineering map.
+See [docs/BLUEPRINT.md](docs/BLUEPRINT.md) for the product and engineering
+blueprint, and [docs/architecture.md](docs/architecture.md) for the full
+implementation map.
 
 ## Storage
 
@@ -302,6 +304,13 @@ and engineering opportunities.
 | `scripts`      | Icon generation, Frida probe tooling, agent build, packaging helpers. |
 | `build`        | Packaging icons/resources.                                            |
 | `docs`         | Architecture and engineering documentation.                           |
+
+Important docs:
+
+- [Application blueprint](docs/BLUEPRINT.md)
+- [Architecture](docs/architecture.md)
+- [Release guide](docs/RELEASE.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
 
 ## License
 
