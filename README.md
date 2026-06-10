@@ -1,6 +1,12 @@
-<h1>
-  <img src="build/icon.png" alt="MobSec Studio logo" width="40" height="40" />
-  MobSec Studio
+<h1 style="display:flex; align-items:center; justify-content:center; gap:12px; text-align:center;">
+  <img
+    src="build/icon.png"
+    alt="MobSec Studio logo"
+    width="40"
+    height="40"
+    style="display:block;"
+  />
+  <span>MobSec Studio</span>
 </h1>
 
 MobSec Studio is a local-first Android security workbench for application
