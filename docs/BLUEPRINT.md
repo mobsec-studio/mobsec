@@ -115,22 +115,193 @@ should make the state and next action clear.
 ## System Context
 
 ```mermaid
-flowchart LR
-  User["Security analyst"] --> Renderer["Electron renderer\nReact UI"]
-  Renderer --> Preload["Preload API\ncontextBridge"]
-  Preload --> Main["Electron main process\nservices and IPC"]
-  Main --> DB["SQLite\nproject data"]
-  Main --> FS["Local filesystem\nuserData and tools"]
-  Main --> ADB["ADB and Android SDK"]
-  Main --> Emulator["Android Emulator and AVD"]
-  Main --> Proxy["mitmproxy"]
-  Main --> JADX["JADX and apktool"]
-  Main --> Frida["Frida host bindings\nfrida-server"]
-  ADB --> Device["Android device or emulator"]
-  Emulator --> Device
-  Proxy --> Device
-  Frida --> Device
+flowchart TB
+  Analyst["Security analyst\nAuthorized Android assessment"]:::actor
+  GitHub["GitHub project\nSource, issues, CI, releases"]:::external
+
+  subgraph Workstation["Analyst workstation"]
+    direction TB
+
+    subgraph App["MobSec Studio desktop application"]
+      direction LR
+
+      subgraph Renderer["Renderer process - unprivileged UI"]
+        direction TB
+        Workbench["React workbench\nDashboard, Proxy, Repeater, APK Analyzer, JADX, Frida, Logcat, Devices, Settings"]:::ui
+        Stores["Zustand stores\nProject, device, proxy, repeater, APK, JADX, Frida, logcat, tools"]:::ui
+        Editors["Monaco editors and viewers\nRequests, responses, scripts, source files, logs"]:::ui
+        Workbench <--> Stores
+        Workbench <--> Editors
+      end
+
+      subgraph Preload["Preload process - security boundary"]
+        API["Typed window.api\nAllow-listed IPC calls and event subscriptions"]:::boundary
+      end
+
+      subgraph Main["Main process - trusted orchestration"]
+        direction TB
+        IPC["IPC handlers\nValidation, IpcResult envelopes, error normalization"]:::core
+        EventBus["Event bus\nStatus, progress, stream, and lifecycle events"]:::core
+        ServiceHub["Service registry and orchestration\nLifecycle, routing, shared helpers"]:::core
+
+        subgraph Services["Main service layer"]
+          direction LR
+          ProjectSvc["Projects and database"]:::service
+          DeviceSvc["Device and ADB"]:::service
+          SdkSvc["SDK setup and toolchain"]:::service
+          EmulatorSvc["Emulator and AVD"]:::service
+          MirrorSvc["Mirror and scrcpy"]:::service
+          ProxySvc["Proxy and CA"]:::service
+          RepeaterSvc["Repeater"]:::service
+          ApkSvc["APK Analyzer"]:::service
+          JadxSvc["JADX"]:::service
+          FridaSvc["Frida"]:::service
+          LogcatSvc["Logcat"]:::service
+          OtherSvc["Other tools and root guidance"]:::service
+        end
+
+        IPC <--> ServiceHub
+        ServiceHub --> ProjectSvc
+        ServiceHub --> DeviceSvc
+        ServiceHub --> SdkSvc
+        ServiceHub --> EmulatorSvc
+        ServiceHub --> MirrorSvc
+        ServiceHub --> ProxySvc
+        ServiceHub --> RepeaterSvc
+        ServiceHub --> ApkSvc
+        ServiceHub --> JadxSvc
+        ServiceHub --> FridaSvc
+        ServiceHub --> LogcatSvc
+        ServiceHub --> OtherSvc
+        ServiceHub --> EventBus
+      end
+
+      Stores <--> API
+      API <--> IPC
+      EventBus --> API
+    end
+
+    subgraph LocalState["Local state, cache, and bundled resources"]
+      direction LR
+      SQLite["SQLite WAL database\nprojects, settings, captures, repeater tabs, scripts, presets"]:::data
+      UserData["Electron userData\nlogs, tmp, captures, scripts, generated output"]:::data
+      ToolsCache["Managed tools cache\nADB, SDK, scrcpy, mitmproxy, apktool, JADX, Frida servers"]:::data
+      Bundled["Bundled resources\nFrida agent, built-in scripts, mitmproxy flow, icons"]:::data
+    end
+
+    subgraph Tooling["External tools launched or resolved by services"]
+      direction LR
+      ADB["adb / platform-tools"]:::tool
+      SDKTools["sdkmanager / avdmanager"]:::tool
+      EmulatorBin["Android Emulator"]:::tool
+      Scrcpy["scrcpy"]:::tool
+      Mitmproxy["mitmproxy + MobSec flow.py"]:::tool
+      Apktool["apktool"]:::tool
+      JadxCli["JADX CLI"]:::tool
+      FridaHost["Frida host bindings"]:::tool
+    end
+  end
+
+  subgraph AndroidLab["Android lab targets"]
+    direction TB
+    UsbDevice["USB ADB device"]:::device
+    WifiDevice["Wireless ADB device"]:::device
+    ManagedAvd["App-managed AVD"]:::device
+    ThirdPartyEmu["Third-party emulator"]:::device
+    ActiveDevice["Active device abstraction\nselected serial, state, ABI, model"]:::device
+    TargetApp["Target app runtime\npackages, processes, logs, network, storage"]:::device
+    TrustStore["Android trust store\nMobSec CA when explicitly installed"]:::device
+    FridaServer["frida-server on device\nroot or root-capable targets"]:::device
+    RootStates["Recovery / bootloader / Magisk workflow\nuser-controlled rooting steps"]:::device
+
+    UsbDevice --> ActiveDevice
+    WifiDevice --> ActiveDevice
+    ManagedAvd --> ActiveDevice
+    ThirdPartyEmu --> ActiveDevice
+    ActiveDevice --> TargetApp
+    ActiveDevice --> TrustStore
+    ActiveDevice --> RootStates
+    FridaServer <--> TargetApp
+  end
+
+  subgraph InputsOutputs["Assessment inputs, traffic, and outputs"]
+    direction TB
+    ApkInput["APK input\nlocal file, drag and drop, device install source"]:::artifact
+    DecompileTree["Decompiled output\nsource and resource tree, searchable files"]:::artifact
+    Captures["Project outputs\nHAR, proxy captures, repeater history, findings, logs"]:::artifact
+    Upstream["HTTP/S upstream systems\nAPIs, web services, test backends"]:::external
+  end
+
+  Analyst --> Workbench
+  GitHub -.-> Analyst
+
+  ProjectSvc <--> SQLite
+  ProjectSvc <--> UserData
+  SdkSvc <--> ToolsCache
+  SdkSvc --> SDKTools
+  DeviceSvc --> ADB
+  EmulatorSvc --> EmulatorBin
+  MirrorSvc --> Scrcpy
+  ProxySvc --> Mitmproxy
+  RepeaterSvc --> Upstream
+  ApkSvc --> Apktool
+  JadxSvc --> JadxCli
+  FridaSvc --> FridaHost
+  LogcatSvc --> ADB
+  OtherSvc --> ADB
+  OtherSvc --> RootStates
+
+  Bundled --> ProxySvc
+  Bundled --> FridaSvc
+  ToolsCache --> ADB
+  ToolsCache --> SDKTools
+  ToolsCache --> Scrcpy
+  ToolsCache --> Mitmproxy
+  ToolsCache --> Apktool
+  ToolsCache --> JadxCli
+  ToolsCache --> FridaHost
+  UserData --> Captures
+
+  ADB <--> ActiveDevice
+  SDKTools --> ManagedAvd
+  EmulatorBin --> ManagedAvd
+  Scrcpy <--> ActiveDevice
+  Mitmproxy <--> TargetApp
+  Mitmproxy <--> Upstream
+  ProxySvc --> TrustStore
+  ApkInput --> ApkSvc
+  ApkInput --> JadxSvc
+  ApkSvc --> Captures
+  JadxCli --> DecompileTree
+  DecompileTree --> UserData
+  FridaHost <--> FridaServer
+  ADB --> TargetApp
+  TargetApp --> Captures
+
+  classDef actor fill:#f8fafc,stroke:#0f172a,stroke-width:2px,color:#0f172a;
+  classDef ui fill:#eef2ff,stroke:#3730a3,color:#111827;
+  classDef boundary fill:#fff7ed,stroke:#c2410c,stroke-width:2px,color:#111827;
+  classDef core fill:#ecfeff,stroke:#0e7490,stroke-width:2px,color:#111827;
+  classDef service fill:#f0fdf4,stroke:#15803d,color:#111827;
+  classDef data fill:#fdf2f8,stroke:#be185d,color:#111827;
+  classDef tool fill:#fefce8,stroke:#a16207,color:#111827;
+  classDef device fill:#eff6ff,stroke:#1d4ed8,color:#111827;
+  classDef artifact fill:#f5f3ff,stroke:#7c3aed,color:#111827;
+  classDef external fill:#f1f5f9,stroke:#475569,color:#111827;
 ```
+
+Reading guide:
+
+- The renderer is intentionally shown as unprivileged; all privileged work
+  crosses the preload and IPC boundary.
+- The main process owns orchestration, validation, persistence, and external
+  tool lifecycles.
+- Local state and tool caches stay on the analyst workstation.
+- Android targets are normalized through the active-device abstraction so USB,
+  wireless, managed AVDs, and third-party emulators feed the same workflows.
+- Proxy, Repeater, APK Analyzer, JADX, Frida, Logcat, Mirror, and root guidance
+  are shown as separate services because they have different failure modes,
+  security boundaries, and platform dependencies.
 
 ## Architectural Model
 
