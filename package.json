@@ -80,7 +80,7 @@
     "winston": "^3.17.0",
     "xz-decompress": "^0.2.3",
     "yauzl": "^3.2.0",
-    "zustand": "^5.0.1"
+    "zustand": "^5.0.14"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
